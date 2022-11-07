@@ -70,9 +70,7 @@ chart_values = {
     'controller': {
         'nginxplus': nginx_plus_flag,
         'healthStatus': True,
-        'appprotect': {
-            'enable': False
-        },
+
         "image": {
             "repository": nginx_repository,
             "tag": nginx_tag,
