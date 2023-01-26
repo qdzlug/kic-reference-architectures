@@ -1,0 +1,12 @@
+awscli 2.9.1
+azure-cli 2.43.0
+doctl 1.84.0
+helm 3.10.2
+k9s 0.26.7
+kubectl 1.24.3
+kubectx 0.9.4
+pulumi 3.51.0
+python 3.9.16
+yq 4.30.5
+snyk 1.1069.0
+syft 0.62.3

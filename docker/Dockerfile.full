@@ -1,0 +1,68 @@
+FROM docker:latest AS docker
+# Built from asdf image created by 'Frederic Leger <contact@webofmars.com>'
+LABEL maintainer='Jason Schmidt <qdzlug@gmail.com>'
+
+FROM ubuntu:focal
+ARG DEBIAN_FRONTEND=noninteractive
+ARG ASDF_VERSION=v0.11.0
+ARG UID
+ARG GID
+ARG DOCKER_GID=999
+COPY --from=docker /usr/local/bin/docker /usr/local/bin/docker
+
+RUN set -eux; \
+    groupadd --gid $DOCKER_GID docker; \
+    groupadd --gid $GID runner; \
+    mkdir -p /pulumi/projects; \
+    useradd --home-dir /home/runner \
+        --groups docker --uid $UID --gid $GID --shell /bin/bash --create-home runner
+
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt -y install \
+    apt-transport-https build-essential ca-certificates \
+    curl git libbz2-dev libffi-dev liblzma-dev libncursesw5-dev \
+    libreadline-dev libsqlite3-dev libssl-dev libxml2-dev libxmlsec1-dev \
+    #llvm make python3-apt python3-apt-dbg python3-pip python3-setuptools \
+    #python-apt-common python-apt-doc software-properties-common tk-dev virtualenv \
+    llvm make software-properties-common tk-dev \
+    wget xz-utils zlib1g-dev unzip && apt -y clean &&  chown -R runner:runner /home/runner
+
+WORKDIR /home/runner
+USER runner
+ENV LANG=C.UTF-8
+ENV PATH="/home/runner/.asdf/shims:/home/runner/.asdf/bin:${PATH}"
+
+RUN /usr/bin/curl -fL -Ss -o /tmp/asdf.tar.gz https://github.com/asdf-vm/asdf/archive/${ASDF_VERSION}.tar.gz && \
+    mkdir -p /home/runner/.asdf && \
+    tar -zxvf /tmp/asdf.tar.gz -C /home/runner/.asdf --strip-components=1 && \
+    rm /tmp/asdf.tar.gz
+
+#
+# We set our desired tool versions in this file which is then copied
+# into the container.
+#
+COPY --chown=runner:runner ./docker/tool-versions /home/runner/.tool-versions
+
+#
+# This tells the asdf installer to install the pip packages that are
+# in the referenced file below.
+#
+COPY --chown=runner:runner ./docker/default-python-packages /home/runner/.default-python-packages
+
+# install plugins and versions
+RUN asdf plugin-add kubectl  && \
+    asdf plugin-add helm     && \
+    asdf plugin-add python   && \
+    asdf plugin-add awscli && \
+    asdf plugin-add azure-cli && \
+    asdf plugin-add doctl && \
+    asdf plugin-add pulumi && \
+    asdf plugin-add k9s && \
+    asdf plugin-add snyk && \
+    asdf plugin-add syft && \
+    asdf plugin-add yq && \
+    asdf plugin-add kubectx
+
+RUN asdf install python
+RUN asdf install
+
+ENTRYPOINT ["/bin/bash", "-c"]
