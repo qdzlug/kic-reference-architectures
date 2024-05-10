@@ -1,5 +1,5 @@
-awscli~=1.25.35
-grpcio==1.43.0
+awscli~=1.27.90
+grpcio==1.53.2
 fart~=0.1.5
 lolcat~=1.4
 nodeenv~=1.6.0
@@ -10,8 +10,8 @@ pulumi-eks>=0.41.2
 pulumi-kubernetes==3.20.1
 pycryptodome~=3.14.0
 PyYAML~=5.4.1
-requests~=2.27.1
-setuptools==62.1.0
+requests~=2.31.0
+setuptools==65.5.1
 setuptools-git-versioning==1.9.2
 wheel==0.37.1
 yamlreader==3.0.4
